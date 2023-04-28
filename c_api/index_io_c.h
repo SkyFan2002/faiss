@@ -44,6 +44,10 @@ int faiss_read_index(FILE* f, int io_flags, FaissIndex** p_out);
  */
 int faiss_read_index_fname(const char* fname, int io_flags, FaissIndex** p_out);
 
+int seralize_index(const FaissIndex* idx, char** p_out, size_t* p_size);
+
+int deserialize_index(const char* data, size_t size, FaissIndex** p_out);
+
 #ifdef __cplusplus
 }
 #endif
