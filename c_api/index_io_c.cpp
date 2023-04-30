@@ -49,17 +49,26 @@ int faiss_read_index_fname(
     CATCH_AND_HANDLE
 }
 
-int seralize_index(const FaissIndex* idx, uint8_t** p_out, size_t* p_size){
+template<class T>
+void forget(T&& v) {
+	alignas(T) char buf[sizeof(T)];
+	new(buf) T(std::move(v));
+}
+
+int serialize_index(const FaissIndex* idx, uint8_t** p_out, size_t* p_size,size_t *p_capacity){
     try{
         faiss::VectorIOWriter writer;
         writer.name = "VectorIOWriter";
         write_index(reinterpret_cast<const Index*>(idx), &writer);
         *p_out = writer.data.data();
+        *p_size = writer.data.size();
+        *p_capacity = writer.data.capacity();
+        forget(std::move(writer.data));
     }
     CATCH_AND_HANDLE
 }
 
-int deserialize_index(const char* data, size_t size, FaissIndex** p_out){
+int deserialize_index(const uint8_t* data, size_t size, FaissIndex** p_out){
     try{
         faiss::VectorIOReader reader;
         reader.name = "VectorIOReader";
